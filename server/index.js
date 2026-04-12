@@ -24,7 +24,11 @@ app.use(express.json())
 app.use(bodyParser.json())
 app.use(cookieParser())
 
+
 // routes
+const uploadRoutes = require('./routes/upload');
+app.use('/api',uploadRoutes);
+
 
 // don't write anything new below this point
 // home route

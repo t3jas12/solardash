@@ -63,14 +63,14 @@ const solarSiteSchema = new mongoose.Schema(
       min: 1,
       max: 31,
     },
-    status: {
-      type: String,
-      enum: {
-        values: ["active", "maintenance", "offline"],
-        message: `{VALUE} is not a valid hardware status`,
-      },
-      default: "Active",
-    },
+    // status: {
+    //   type: String,
+    //   enum: {
+    //     values: ["active", "maintenance", "offline"],
+    //     message: `{VALUE} is not a valid hardware status`,
+    //   },
+    //   default: "active",
+    // },
     // environmental KPIs
     co2ReductionTonnes: { type: Number, min: 0 },
     coalSavingsTonnes: { type: Number, min: 0 },
