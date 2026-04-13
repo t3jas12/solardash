@@ -25,12 +25,15 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 
 
-
 // routes
 const authRouter = require('./routes/auth');
+const uploadRouter = require("./routes/upload");
+const siteRouter = require("./routes/site");
 
 // api endpoints
 app.use('/', authRouter);
+app.use("/", uploadRouter);
+app.use("/", siteRouter);
 
 
 // dont write anything new below this point
