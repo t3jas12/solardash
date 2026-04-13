@@ -100,7 +100,7 @@ router.post(
             });
 
         } catch (error) {
-            console.error("Error caught during upload:", error.message);
+            // console.error("Error caught during upload:", err.message);
             res.status(500).json({ 
                 success: false, 
                 error: "Failed to process Excel file.", 

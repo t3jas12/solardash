@@ -28,7 +28,7 @@ app.use(cookieParser())
 // routes
 const authRouter = require('./routes/auth');
 const uploadRouter = require("./routes/upload");
-const siteRouter = require("./routes/site");
+const siteRouter = require("./routes/site")
 
 // api endpoints
 app.use('/', authRouter);
