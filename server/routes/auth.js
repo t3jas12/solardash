@@ -5,60 +5,27 @@ const authorizeRoles = require("../middlewares/rbac");
 
 const authRouter = express.Router();
 
-authRouter.post("/signup", async (req, res) => {
-  try {
-    const { 
-        firstName, 
-        lastName, 
-        emailId, 
-        password, 
-        role
-    } = req.body;
 
-    const existingUser = await User.findOne({ emailId });
-    if (existingUser) {
-      return res.status(400).json({ success: false, error: "Email is already registered." });
+//signup api 
+
+authRouter.post("/signup", userAuth, authorizeRoles('admin'), async (req, res) => {
+    try {
+        const { firstName, lastName, emailId, password, role } = req.body;
+
+        // ... your existing validation logic ...
+
+        // Hash the password and save
+        const user = new User({ firstName, lastName, emailId, password, role });
+        await user.save();
+        
+        res.status(201).json({ 
+            success: true, 
+            message: "User created successfully." 
+        });
+
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
     }
-
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password, 
-      role 
-    });
-
-    await user.save();
-
-    //generate jwt 
-    const token = await user.getJWT();
-    
-    //attach token to cookie 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "User Added successfully!",
-      user: {
-        _id: user._id,
-        firstName: user.firstName,
-        emailId: user.emailId,
-        role: user.role
-      }
-    });
-
-  } catch (err) {
-// catch err if mongoose rejects data
-    res.status(400).json({ 
-        success: false,
-        error: err.message
-    });
-  }
 });
 
 //login api
@@ -83,7 +50,7 @@ authRouter.post("/login", async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60
+      maxAge: 1 * 24 * 60 * 60 * 1000
     });
 
     res.status(200).json({
@@ -106,18 +73,39 @@ authRouter.post("/login", async (req, res) => {
 //logout api 
  
 authRouter.post("/logout", (req, res) => {
-  res.cookie("token", null, {
-    expires: new Date(Date.now()),
-    httpOnly: true
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "strict",
   });
-  res.status(200).json({
-    success: true,
-    message: "Logged out successfully"
+  
+  res.status(200).json({ 
+    success: true, 
+    message: "Logged out successfully." 
   });
 });
 
-//user edit api 
+// ==========================================
+// GET ALL USERS API (Admin Only)
+// ==========================================
+authRouter.get("/users", userAuth, authorizeRoles('admin'), async (req, res) => {
+    try {
+        // Find all users but explicitly exclude the password field for security
+        const users = await User.find({}, '-password').sort({ createdAt: -1 });
+        
+        res.status(200).json({ 
+            success: true, 
+            data: users 
+        });
 
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            error: "Failed to fetch users." 
+        });
+    }
+});
+
+//user edit api 
 authRouter.patch("/edit/:id", userAuth, async (req, res) => {
     try {
         const targetUserId = req.params.id;
@@ -169,7 +157,6 @@ authRouter.patch("/edit/:id", userAuth, async (req, res) => {
 });
 
 //delete user api
-
 authRouter.delete("/delete/:id", userAuth, authorizeRoles('admin'), async (req, res) => {
     try {
         const targetUserId = req.params.id;

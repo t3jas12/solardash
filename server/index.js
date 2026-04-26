@@ -4,6 +4,7 @@ require('dotenv').config({ quiet: true })
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
+const cors = require('cors');
 
 // port
 const port = process.env.PORT || 3000
@@ -23,17 +24,23 @@ mongoose
 app.use(express.json())
 app.use(bodyParser.json())
 app.use(cookieParser())
+app.use(cors({
+    origin: 'process.env.VITE_URL',
+    credentials: true
+}));
 
 
 // routes
 const authRouter = require('./routes/auth');
 const uploadRouter = require("./routes/upload");
-const siteRouter = require("./routes/site")
+const siteRouter = require("./routes/site");
+const analyticsRouter = require('./routes/analytics');
 
 // api endpoints
 app.use('/', authRouter);
 app.use("/", uploadRouter);
 app.use("/", siteRouter);
+app.use("/", analyticsRouter);
 
 
 // dont write anything new below this point

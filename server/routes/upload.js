@@ -62,7 +62,7 @@ router.post(
                     tariffInr: parseFloat(row["Tariff (INR)"]) || 0,
                     amountInr: parseCommaNumber(row["Amount (INR)"]),
                     acCapacityKw: parseCommaNumber(row["AC Capacity (KW)"]),
-                    dcCapacityKw: parseCommaNumber(row["DC Capacity (KW)"]),
+                    dcCapacityKwp: parseCommaNumber(row["DC Capacity (Kwp)"]),
                     acCufPercentage: parseFloat(row["AC CUF"]) || 0, 
                     yield: parseFloat(row["Yield (kWh/ KWDC / day)"]) || 0,
                     daysLogged: parseInt(row["Day"]) || 0,
@@ -71,7 +71,7 @@ router.post(
                     
                     co2ReductionTonnes: parseCommaNumber(row["Co2 Reduction Updated CEA Baseline (Tonnes)"]),
                     coalSavingsTonnes: parseCommaNumber(row["Standard Coal Savings (Tonnes)"]),
-                    treePlantingEquivalent: parseCommaNumber(row["Equivalent Tree Planting (U.S. EPA Greenhouse Gas Equivalencies Calculator)"])
+                    treePlantingEquivalent: parseCommaNumber(row[" Equivalent Tree Planting  (U.S. EPA Greenhouse Gas Equivalencies Calculator)"])
                 };
             });
 

@@ -45,7 +45,7 @@ const solarSiteSchema = new mongoose.Schema(
       type: Number,
       min: 0,
     },
-    dcCapacityKw: {
+    dcCapacityKwp: {
       type: Number,
       min: 0,
     },
