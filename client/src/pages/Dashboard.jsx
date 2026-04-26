@@ -19,7 +19,7 @@ const Dashboard = () => {
           <div className="card-body p-6 flex flex-col">
             <h5 className="card-title text-gray-800 text-lg mb-1">Analytics</h5>
             <p className="text-xs text-gray-500 flex-grow leading-relaxed">
-              View interactive charts for generation, yield, and revenue.
+              View performance charts and key metrics for all solar sites.
             </p>
             <div className="card-actions mt-6">
               <Link to="/analytics" className="btn bg-[#27272a] hover:bg-[#3f3f46] text-white border-none w-full min-h-0 h-10 rounded-md font-medium">
@@ -33,7 +33,7 @@ const Dashboard = () => {
         {(role === 'admin' || role === 'editor') && (
           <div className="card bg-white border border-gray-200 rounded-xl hover:border-blue-500 transition-colors shadow-sm">
             <div className="card-body p-6 flex flex-col">
-              <h5 className="card-title text-gray-800 text-lg mb-1">Data ingestion</h5>
+              <h5 className="card-title text-gray-800 text-lg mb-1">Data Upload</h5>
               <p className="text-xs text-gray-500 flex-grow leading-relaxed">
                 Upload monthly Excel hardware logs to the database.
               </p>
@@ -74,6 +74,23 @@ const Dashboard = () => {
               <div className="card-actions mt-6">
                 <Link to="/manage-users" className="btn bg-[#fbbf24] hover:bg-[#f59e0b] text-gray-900 border-none w-full min-h-0 h-10 rounded-md font-medium">
                   Employee Directory
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. System Logs Card: VISIBLE ONLY TO ADMINS */}
+        {role === 'admin' && (
+          <div className="card bg-white border border-[#fbbf24] rounded-xl shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+            <div className="card-body p-6 flex flex-col">
+              <h5 className="card-title text-gray-800 text-lg mb-1">System Logs</h5>
+              <p className="text-xs text-gray-500 flex-grow leading-relaxed">
+                Monitor user authentication, logins, and logouts in real-time.
+              </p>
+              <div className="card-actions mt-6">
+                <Link to="/logs" className="btn bg-[#fbbf24] hover:bg-[#f59e0b] text-gray-900 border-none w-full min-h-0 h-10 rounded-md font-medium">
+                  View Audit Trail
                 </Link>
               </div>
             </div>

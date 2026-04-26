@@ -1,43 +1,74 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
+
+// Pages
 import Login from './pages/Login';
-import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
-import SiteList from './pages/SiteList';
 import UploadData from './pages/UploadData';
+// Assuming you have these pages created based on our previous setup:
+import SiteList from './pages/SiteList'; // Just replace with your actual directory component name if different
 import ManageUsers from './pages/ManageUsers';
+import SystemLogs from './pages/SystemLogs';
+
+// Bouncers
+import SecuredRoute from './components/SecuredRoute';
+import PublicRoute from './components/PublicRoute';
 
 function App() {
   return (
-    <Router>
-      <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
-        {/* Navbar is global and will adapt based on the current URL */}
-        <Navbar />
+    <BrowserRouter>
+      <div className="flex flex-col min-h-screen bg-gray-50">
         
-        <main className="grow">
+        <Navbar /> 
+        
+        <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
             
-            {/* These routes should eventually be wrapped in a ProtectedRoute component */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/sites" element={<SiteList />} />
-            <Route path="/upload" element={<UploadData />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/manage-users" element={<ManageUsers />} />
+            {/* ========================================== */}
+            {/* PUBLIC ROUTES (Only accessible if logged OUT) */}
+            {/* ========================================== */}
+            <Route element={<PublicRoute />}>
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<Login />} />
+            </Route>
 
-            {/* Fallback to home */}
-            <Route path="*" element={<Navigate to="/" />} />
+            {/* ========================================== */}
+            {/* SECURED ROUTES (Must be logged in)         */}
+            {/* ========================================== */}
+            <Route element={<SecuredRoute />}>
+              
+              {/* Visible to ALL logged-in users (Admin, Editor, Viewer) */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/analytics" element={<Analytics />} />
+
+              {/* Visible ONLY to Admins & Editors */}
+              <Route element={<SecuredRoute allowedRoles={['admin', 'editor']} />}>
+                <Route path="/upload" element={<UploadData />} />
+                <Route path="/sites" element={<SiteList />} />
+              </Route>
+
+              {/* Visible ONLY to Admins */}
+              <Route element={<SecuredRoute allowedRoles={['admin']} />}>
+                <Route path="/manage-users" element={<ManageUsers />} />
+                <Route path="/logs" element={<SystemLogs />} />
+                {/* Your signup is now effectively part of manage-users, but if you still have a separate route: */}
+                {/* <Route path="/signup" element={<Signup />} /> */}
+              </Route>
+
+            </Route>
+
+            {/* Catch-all: If a user types a random URL, boot them safely to login */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+
           </Routes>
         </main>
 
         <Footer />
+        
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 

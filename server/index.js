@@ -25,7 +25,7 @@ app.use(express.json())
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: 'process.env.VITE_URL',
+    origin: process.env.VITE_URL,
     credentials: true
 }));
 
@@ -66,6 +66,17 @@ app.use((err, req, res, next) => {
     message: err.message || 'Internal Server Error'
   })
 })
+
+const path = require('path');
+
+// --- PRODUCTION DEPLOYMENT SETUP ---
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../client", "dist", "index.html"));
+  });
+}
 
 // server entry
 app.listen(port, () => {

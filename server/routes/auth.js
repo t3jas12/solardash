@@ -2,9 +2,10 @@ const express = require("express");
 const User = require("../models/user"); 
 const { userAuth } = require("../middlewares/auth");
 const authorizeRoles = require("../middlewares/rbac");
+const user = require("../models/user");
+const ActivityLog = require("../models/activityLog");
 
 const authRouter = express.Router();
-
 
 //signup api 
 
@@ -28,6 +29,17 @@ authRouter.post("/signup", userAuth, authorizeRoles('admin'), async (req, res) =
     }
 });
 
+// FETCH SYSTEM LOGS (Admin Only)
+authRouter.get("/logs", userAuth, authorizeRoles('admin'), async (req, res) => {
+    try {
+        // Fetch the 100 most recent logs
+        const logs = await ActivityLog.find().sort({ timestamp: -1 }).limit(100);
+        res.status(200).json({ success: true, data: logs });
+    } catch (error) {
+        res.status(500).json({ success: false, error: "Failed to fetch system logs." });
+    }
+});
+
 //login api
 
 authRouter.post("/login", async (req, res) => {
@@ -45,6 +57,13 @@ authRouter.post("/login", async (req, res) => {
     }
 
     const token = await user.getJWT();
+
+    await ActivityLog.create({
+        userId: user._id,
+        userName: `${user.firstName} ${user.lastName}`,
+        userEmail: user.emailId,
+        action: 'LOGIN'
+    });
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -72,16 +91,26 @@ authRouter.post("/login", async (req, res) => {
 
 //logout api 
  
-authRouter.post("/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "strict",
-  });
-  
-  res.status(200).json({ 
-    success: true, 
-    message: "Logged out successfully." 
-  });
+// SECURE LOGOUT API
+authRouter.post("/logout", userAuth, async (req, res) => {
+  try {
+      // Record the Logout Action
+      await ActivityLog.create({
+          userId: req.user._id,
+          userName: `${req.user.firstName} ${req.user.lastName}`,
+          userEmail: req.user.emailId,
+          action: 'LOGOUT'
+      });
+
+      res.clearCookie("token", {
+        httpOnly: true,
+        sameSite: "strict",
+      });
+      
+      res.status(200).json({ success: true, message: "Logged out successfully." });
+  } catch (error) {
+      res.status(500).json({ success: false, error: "Failed to process logout." });
+  }
 });
 
 // ==========================================
