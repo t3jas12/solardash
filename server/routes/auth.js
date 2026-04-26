@@ -91,7 +91,6 @@ authRouter.post("/login", async (req, res) => {
 
 //logout api 
  
-// SECURE LOGOUT API
 authRouter.post("/logout", userAuth, async (req, res) => {
   try {
       // Record the Logout Action
@@ -104,7 +103,8 @@ authRouter.post("/logout", userAuth, async (req, res) => {
 
       res.clearCookie("token", {
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "none",
+        secure: true
       });
       
       res.status(200).json({ success: true, message: "Logged out successfully." });
@@ -113,9 +113,8 @@ authRouter.post("/logout", userAuth, async (req, res) => {
   }
 });
 
-// ==========================================
-// GET ALL USERS API (Admin Only)
-// ==========================================
+
+// GET ALL USERS API
 authRouter.get("/users", userAuth, authorizeRoles('admin'), async (req, res) => {
     try {
         // Find all users but explicitly exclude the password field for security
