@@ -8,8 +8,8 @@ const Dashboard = () => {
     <div className="container mx-auto px-4 py-12 max-w-7xl">
       
       <div className="mb-10 pl-2">
-        <h2 className="text-3xl font-semibold text-gray-900">IPCL Solar Headquarters</h2>
-        <p className="text-gray-500 mt-2 text-sm">Welcome to the central control panel.</p>
+        <h2 className="text-3xl font-semibold text-gray-900">SolarDash</h2>
+        <p className="text-gray-500 mt-2 text-sm">Welcome to SolarDash Dashboard.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

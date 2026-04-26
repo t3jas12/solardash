@@ -24,7 +24,7 @@ const Navbar = () => {
     <div className="navbar bg-[#1c1c1c] text-white shadow-sm px-4 md:px-8 border-b border-[#2a2a2a]">
       <div className="flex-1">
         <Link to={isPublicView ? "/" : "/dashboard"} className="text-xl font-bold tracking-wide">
-          IPCL Solar
+          SolarDash
         </Link>
       </div>
       <div className="flex-none">
