@@ -91,20 +91,32 @@ authRouter.post("/login", async (req, res) => {
 
 //logout api 
  
-authRouter.post("/logout", userAuth, async (req, res) => {
+authRouter.post("/logout", async (req, res) => {
   try {
-      // Record the Logout Action
-      await ActivityLog.create({
-          userId: req.user._id,
-          userName: `${req.user.firstName} ${req.user.lastName}`,
-          userEmail: req.user.emailId,
-          action: 'LOGOUT'
-      });
+      const { token } = req.cookies;
+      
+      // only log if token exists and is valid
+      if (token) {
+          try {
+              const decoded = jwt.verify(token, process.env.JWT_SECRET);
+              const user = await User.findById(decoded._id);
+              if (user) {
+                  await ActivityLog.create({
+                      userId: user._id,
+                      userName: `${user.firstName} ${user.lastName}`,
+                      userEmail: user.emailId,
+                      action: 'LOGOUT'
+                  });
+              }
+          } catch (e) {
+              // token expired or invalid, skip logging but clear cookie
+          }
+      }
 
       res.clearCookie("token", {
         httpOnly: true,
-        sameSite: "none",
-        secure: true
+        secure: process.env.NODE_ENV === "production" ? true : false,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
       
       res.status(200).json({ success: true, message: "Logged out successfully." });
@@ -149,7 +161,6 @@ authRouter.patch("/edit/:id", userAuth, async (req, res) => {
         }
 
         const { firstName, lastName, role, password } = req.body;
-
         if (firstName) userToUpdate.firstName = firstName;
         if (lastName) userToUpdate.lastName = lastName;
 
@@ -174,7 +185,6 @@ authRouter.patch("/edit/:id", userAuth, async (req, res) => {
                 role: userToUpdate.role
             }
         });
-
     } catch (error) {
         res.status(400).json({
           success: false,
@@ -201,12 +211,10 @@ authRouter.delete("/delete/:id", userAuth, authorizeRoles('admin'), async (req, 
         if (!deletedUser) {
             return res.status(404).json({ success: false, error: "User not found." });
         }
-
         res.status(200).json({
             success: true,
             message: "User deleted successfully."
         });
-
     } catch (error) {
         // console.error("Delete user error:", err.message);
         res.status(500).json({ 

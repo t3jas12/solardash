@@ -6,14 +6,12 @@ const Navbar = () => {
   const navigate = useNavigate();
   const isPublicView = ['/', '/login'].includes(location.pathname);
 
-  // Read the role from memory (default to 'viewer' if not found for safety)
   const role = localStorage.getItem('userRole') || 'viewer';
 
   const handleLogout = async () => {
     try {
       const res = await api.post('/logout');
       if (res.data.success) {
-        // NEW: Wipe the role from memory on logout
         localStorage.removeItem('userRole'); 
         navigate('/login');
       }

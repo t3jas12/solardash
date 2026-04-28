@@ -5,4 +5,15 @@ const api = axios.create({
     withCredentials: true,
 });
 
+api.interceptors.response.use(
+    (res) => res,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('userRole');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

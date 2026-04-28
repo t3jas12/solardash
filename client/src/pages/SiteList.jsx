@@ -29,7 +29,7 @@ const SiteList = () => {
             <tbody>
               {/* Placeholder row. We will map over your MongoDB data here! */}
               <tr>
-                <td>Alpha Site 1</td>
+                <td> Site 1 (testing)</td>
                 <td>Uttarakhand</td>
                 <td>45,000</td>
                 <td>18.5%</td>

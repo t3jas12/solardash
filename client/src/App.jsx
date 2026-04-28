@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 
 // Pages
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import UploadData from './pages/UploadData';
@@ -23,12 +24,9 @@ function App() {
         
         <Navbar /> 
         
-        <main className="flex-grow">
+        <main className="grow">
           <Routes>
-            
-            {/* ========================================== */}
-            {/* PUBLIC ROUTES (Only accessible if logged OUT) */}
-            {/* ========================================== */}
+
             <Route element={<PublicRoute />}>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
@@ -54,7 +52,7 @@ function App() {
                 <Route path="/manage-users" element={<ManageUsers />} />
                 <Route path="/logs" element={<SystemLogs />} />
                 {/* Your signup is now effectively part of manage-users, but if you still have a separate route: */}
-                {/* <Route path="/signup" element={<Signup />} /> */}
+                <Route path="/signup" element={<Signup />} />
               </Route>
 
             </Route>

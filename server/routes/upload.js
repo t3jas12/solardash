@@ -16,9 +16,7 @@ const parseCommaNumber = (val) => {
     return parseFloat(val.toString().replace(/,/g, ''));
 };
 
-// ==========================================
-// SECURE UPLOAD ROUTE (Multi-Sheet & Smart Upsert)
-// ==========================================
+// UPLOAD ROUTE (Multi-Sheet & Smart Upsert)
 router.post(
     '/upload-excel', 
     userAuth, 
