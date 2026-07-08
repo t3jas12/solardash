@@ -20,34 +20,48 @@ const getMonthBoundaries = (year, monthIndex) => {
 };
 
 // Reusable function to build the Match stage based on Year and Month filters
-const buildTimeMatchStage = (year, month) => {
+const buildTimeMatchStage = (yearParam, monthParam) => {
     const matchStage = {};
     const currentYear = new Date().getFullYear();
 
-    if (year !== 'All' && month !== 'All') {
-        // Specific Month AND Year (e.g., March 2024)
-        const bounds = getMonthBoundaries(parseInt(year), parseInt(month));
-        matchStage.month = { $gte: bounds.start, $lte: bounds.end };
-    } else if (year !== 'All' && month === 'All') {
-        // Entire Year (e.g., All of 2024)
-        const bounds = getYearBoundaries(parseInt(year));
-        matchStage.month = { $gte: bounds.start, $lte: bounds.end };
-    } else if (year === 'All' && month !== 'All') {
-        // Specific Month across ALL Years (e.g., Every March from 2017 to Now)
+    const years = yearParam ? yearParam.split(',').filter(y => y !== 'All' && y !== '') : [];
+    const months = monthParam ? monthParam.split(',').filter(m => m !== 'All' && m !== '') : [];
+
+    if (years.length > 0 || months.length > 0) {
         const orConditions = [];
-        const monthIdx = parseInt(month);
-        for (let y = 2017; y <= currentYear; y++) {
-            const bounds = getMonthBoundaries(y, monthIdx);
-            orConditions.push({ month: { $gte: bounds.start, $lte: bounds.end } });
+
+        if (years.length > 0 && months.length === 0) {
+            // Entire Years
+            years.forEach(y => {
+                const bounds = getYearBoundaries(parseInt(y));
+                orConditions.push({ month: { $gte: bounds.start, $lte: bounds.end } });
+            });
+        } else if (months.length > 0 && years.length === 0) {
+            // Specific Months across ALL Years
+            months.forEach(m => {
+                const monthIdx = parseInt(m);
+                for (let y = 2017; y <= currentYear; y++) {
+                    const bounds = getMonthBoundaries(y, monthIdx);
+                    orConditions.push({ month: { $gte: bounds.start, $lte: bounds.end } });
+                }
+            });
+        } else if (years.length > 0 && months.length > 0) {
+            // Specific Months AND Years
+            years.forEach(y => {
+                months.forEach(m => {
+                    const bounds = getMonthBoundaries(parseInt(y), parseInt(m));
+                    orConditions.push({ month: { $gte: bounds.start, $lte: bounds.end } });
+                });
+            });
         }
+
         if (orConditions.length > 0) matchStage.$or = orConditions;
     }
     return matchStage;
 };
 
-// ==========================================
+
 // 1. FETCH AVAILABLE SITES (State filter removed)
-// ==========================================
 router.get('/analytics/sites', userAuth, async (req, res) => {
     try {
         const sites = await SolarSite.distinct("siteName");
@@ -57,15 +71,16 @@ router.get('/analytics/sites', userAuth, async (req, res) => {
     }
 });
 
-// ==========================================
 // 2. SYSTEM KPI ANALYTICS 
-// ==========================================
 router.get('/analytics/kpi', userAuth, async (req, res) => {
     try {
         const { siteName, year, month } = req.query;
         
         const matchStage = buildTimeMatchStage(year, month);
-        if (siteName && siteName !== 'All') matchStage.siteName = siteName;
+        if (siteName && siteName !== 'All') {
+            const sites = siteName.split(',').filter(s => s !== 'All' && s !== '');
+            if (sites.length > 0) matchStage.siteName = { $in: sites };
+        }
 
         const metrics = await SolarSite.aggregate([
             { $match: matchStage },
@@ -112,21 +127,22 @@ router.get('/analytics/kpi', userAuth, async (req, res) => {
     }
 });
 
-// ==========================================
 // 3. CHART DATA 
-// ==========================================
 router.get('/analytics/charts', userAuth, async (req, res) => {
     try {
         const { siteName, year, month } = req.query;
         
         const matchStage = buildTimeMatchStage(year, month);
-        if (siteName && siteName !== 'All') matchStage.siteName = siteName;
+        if (siteName && siteName !== 'All') {
+            const sites = siteName.split(',').filter(s => s !== 'All' && s !== '');
+            if (sites.length > 0) matchStage.siteName = { $in: sites };
+        }
 
         const chartData = await SolarSite.aggregate([
             { $match: matchStage },
             {
                 $group: {
-                    _id: "$month",
+                    _id: { month: "$month", site: "$siteName" },
                     monthlyGeneration: { $sum: "$generationKwh" },
                     monthlyRevenue: { $sum: "$amountInr" },
                     monthlyYield: { $avg: "$yield" }, 
@@ -135,7 +151,7 @@ router.get('/analytics/charts', userAuth, async (req, res) => {
                     monthlyCoal: { $sum: "$coalSavingsTonnes" }
                 }
             },
-            { $addFields: { sortableMonth: { $toInt: "$_id" } } },
+            { $addFields: { sortableMonth: { $toInt: "$_id.month" } } },
             { $sort: { sortableMonth: 1 } }
         ]);
 

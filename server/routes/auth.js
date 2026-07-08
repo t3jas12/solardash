@@ -129,7 +129,7 @@ authRouter.post("/logout", async (req, res) => {
 // GET ALL USERS API
 authRouter.get("/users", userAuth, authorizeRoles('admin'), async (req, res) => {
     try {
-        // Find all users but explicitly exclude the password field for security
+        // find all users 
         const users = await User.find({}, '-password').sort({ createdAt: -1 });
         
         res.status(200).json({ 

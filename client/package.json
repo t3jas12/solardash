@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-"dependencies": {
+  "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.2.4",
     "@vitejs/plugin-react": "^6.0.1",
@@ -20,10 +20,11 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.0",
+    "react-select": "^5.10.2",
     "tailwindcss": "^4.2.4",
     "vite": "^8.0.4"
   },
-"devDependencies": {
+  "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
